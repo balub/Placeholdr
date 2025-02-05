@@ -12,30 +12,15 @@ import { Github, Mail } from 'lucide-react';
 import { Separator } from '@radix-ui/react-separator';
 import { Input } from '@/components/ui/input';
 import { handleSignIn } from '@/utils';
+import { useMutation } from '@tanstack/react-query';
+import { sendMagicLink } from '@/services/AuthService';
 
 const UserAuthCard: React.FC = () => {
 	const [email, setEmail] = useState('');
-	const [isLoading, setIsLoading] = useState(false);
 
-	const handleGoogleLogin = () => {
-		handleSignIn('google');
-	};
-
-	const handleGithubLogin = () => {
-		handleSignIn('github');
-	};
-
-	const handleMagicLinkLogin = (e: React.FormEvent) => {
-		e.preventDefault();
-		setIsLoading(true);
-		// Implement magic link login logic here
-		console.log('Magic link login for:', email);
-		// Simulate API call
-		setTimeout(() => {
-			setIsLoading(false);
-			setEmail('');
-		}, 2000);
-	};
+	const sendMagicLinkMutation = useMutation({
+		mutationFn: () => sendMagicLink(email)
+	});
 
 	return (
 		<Card className="w-[350px]">
@@ -47,7 +32,7 @@ const UserAuthCard: React.FC = () => {
 				<div className="space-y-4">
 					<Button
 						variant="outline"
-						onClick={handleGoogleLogin}
+						onClick={() => handleSignIn('google')}
 						className="w-full"
 					>
 						<svg
@@ -69,7 +54,7 @@ const UserAuthCard: React.FC = () => {
 					</Button>
 					<Button
 						variant="outline"
-						onClick={handleGithubLogin}
+						onClick={() => handleSignIn('github')}
 						className="w-full"
 					>
 						<Github className="mr-2 h-4 w-4" />
@@ -82,7 +67,7 @@ const UserAuthCard: React.FC = () => {
 						Or
 					</span>
 				</div>
-				<form onSubmit={handleMagicLinkLogin}>
+				<form onSubmit={() => sendMagicLinkMutation.mutate()}>
 					<div className="space-y-4">
 						<Input
 							type="email"
@@ -91,13 +76,19 @@ const UserAuthCard: React.FC = () => {
 							onChange={(e) => setEmail(e.target.value)}
 							required
 						/>
-						<Button type="submit" className="w-full" disabled={isLoading}>
-							{isLoading ? (
+						<Button
+							type="submit"
+							className="w-full"
+							disabled={sendMagicLinkMutation.isPending}
+						>
+							{sendMagicLinkMutation.isPending ? (
 								<Mail className="mr-2 h-4 w-4 animate-spin" />
 							) : (
 								<Mail className="mr-2 h-4 w-4" />
 							)}
-							{isLoading ? 'Sending...' : 'Login with Magic Link'}
+							{sendMagicLinkMutation.isPending
+								? 'Sending...'
+								: 'Login with Magic Link'}
 						</Button>
 					</div>
 				</form>
