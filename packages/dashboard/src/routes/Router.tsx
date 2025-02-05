@@ -2,7 +2,7 @@ import { JSXElementConstructor, ReactElement, Suspense } from "react";
 import { Outlet, useRoutes } from "react-router-dom";
 import { routes } from "./routes";
 import { authRoutes } from "./authRoutes";
-import RouteProtection from "./RouteProtection";
+import RouteProtection from "../utils/RouteProtection";
 import PageLoader from "../components/common/PageLoader/PageLoader";
 import BaseLayout from "../layout/BaseLayout/BaseLayout";
 
