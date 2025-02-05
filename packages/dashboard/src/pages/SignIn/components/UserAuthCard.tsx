@@ -14,13 +14,32 @@ import { Input } from '@/components/ui/input';
 import { handleSignIn } from '@/utils';
 import { useMutation } from '@tanstack/react-query';
 import { sendMagicLink } from '@/services/AuthService';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const emailSchema = z.object({
+	email: z.string().email('Invalid email address')
+});
+
+type emailFormValues = z.infer<typeof emailSchema>;
 
 const UserAuthCard: React.FC = () => {
-	const [email, setEmail] = useState('');
+	const {
+		register,
+		handleSubmit,
+		formState: { errors }
+	} = useForm<emailFormValues>({
+		resolver: zodResolver(emailSchema)
+	});
 
 	const sendMagicLinkMutation = useMutation({
-		mutationFn: () => sendMagicLink(email)
+		mutationFn: (email: string) => sendMagicLink(email)
 	});
+
+	const onSubmit = handleSubmit((data: emailFormValues) =>
+		sendMagicLinkMutation.mutate(data.email)
+	);
 
 	return (
 		<Card className="w-[350px]">
@@ -67,15 +86,12 @@ const UserAuthCard: React.FC = () => {
 						Or
 					</span>
 				</div>
-				<form onSubmit={() => sendMagicLinkMutation.mutate()}>
+				<form onSubmit={onSubmit}>
 					<div className="space-y-4">
-						<Input
-							type="email"
-							placeholder="Enter your email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							required
-						/>
+						<Input {...register('email')} name="email" />
+						{errors.email && (
+							<p className="text-red-500 text-sm">{errors.email.message}</p>
+						)}
 						<Button
 							type="submit"
 							className="w-full"
