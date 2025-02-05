@@ -19,12 +19,10 @@ const UserAuthCard: React.FC = () => {
 
 	const handleGoogleLogin = () => {
 		handleSignIn('google');
-		console.log('Google login clicked');
 	};
 
 	const handleGithubLogin = () => {
 		handleSignIn('github');
-		console.log('GitHub login clicked');
 	};
 
 	const handleMagicLinkLogin = (e: React.FormEvent) => {
