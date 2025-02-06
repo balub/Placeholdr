@@ -7,20 +7,22 @@ import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
 import { throwHTTPErr } from 'src/utils';
 import { USER_NOT_FOUND } from 'src/errors';
+import { User as ExportUser } from 'src/types/User';
 
-@Controller()
+@Controller({ path: 'user', version: '1' })
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+	constructor(private readonly userService: UserService) {}
 
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  async me(@User() authUser: AuthUser) {
-    const user = await this.userService.findUserByEmail(authUser.email);
-    if (O.isNone(user))
-      throwHTTPErr({
-        message: USER_NOT_FOUND,
-        statusCode: 404,
-      });
-    return user.value;
-  }
+	@Get('me')
+	@UseGuards(JwtAuthGuard)
+	async me(@User() authUser: AuthUser) {
+		const { uid, email, displayName, photoURL, createdOn } = authUser;
+		return <ExportUser>{
+			uid,
+			email,
+			displayName,
+			photoURL,
+			createdOn
+		};
+	}
 }
